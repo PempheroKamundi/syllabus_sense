@@ -18,7 +18,6 @@ from data_types import (BatchSelectionNodeResponse, PlanningNodeResponse,
                         SubtopicExtractionNodeResponse, SubtopicsResponse)
 from document_parser.syllabus_parser import BaseSyllabusParser
 
-
 logger = logging.getLogger(__name__)
 
 load_dotenv()
@@ -149,16 +148,23 @@ class SyllabusAIGraph(BaseSyllabusSenseGraphTemplate):
         # Check if we've reached the end of the plan
         if start_pos >= len(state.question_plan.planned_questions):
             logger.info("Reached the end of the question plan")
-            return {"current_batch": [], "plan_position": len(state.question_plan.planned_questions)}
+            return {
+                "current_batch": [],
+                "plan_position": len(state.question_plan.planned_questions),
+            }
 
         # Determine the end position for this batch
-        end_pos = min(start_pos + state.batch_size, len(state.question_plan.planned_questions))
+        end_pos = min(
+            start_pos + state.batch_size, len(state.question_plan.planned_questions)
+        )
 
         current_batch = state.question_plan.planned_questions[start_pos:end_pos]
 
         questions_remaining = len(state.question_plan.planned_questions) - start_pos
         if questions_remaining < state.batch_size:
-            logger.info(f"PARTIAL BATCH: Processing final {questions_remaining} questions")
+            logger.info(
+                f"PARTIAL BATCH: Processing final {questions_remaining} questions"
+            )
 
         for question in current_batch:
             question.status = "generating"
@@ -250,7 +256,6 @@ class SyllabusAIGraph(BaseSyllabusSenseGraphTemplate):
         try:
             parsed_output = parser.parse(str(response.content))
 
-
             logger.info(f"Generated {len(parsed_output.questions)} questions for batch")
 
             return {"current_questions": parsed_output.questions}
@@ -278,7 +283,6 @@ class SyllabusAIGraph(BaseSyllabusSenseGraphTemplate):
                         existing_questions = []
             else:
                 existing_questions = []
-
 
             new_questions_dict = [q.model_dump() for q in state.current_questions]
             all_saved_questions = existing_questions + new_questions_dict
@@ -309,16 +313,22 @@ class SyllabusAIGraph(BaseSyllabusSenseGraphTemplate):
         current_position = state.plan_position
         total_questions = len(state.question_plan.planned_questions)
 
-        logger.info(f"Decision point: position {current_position} of {total_questions} total questions")
+        logger.info(
+            f"Decision point: position {current_position} of {total_questions} total questions"
+        )
 
         # Check if we've processed all questions (including partial final batch)
         if current_position >= total_questions:
-            logger.info(f"All {total_questions} planned questions have been generated. Workflow complete.")
+            logger.info(
+                f"All {total_questions} planned questions have been generated. Workflow complete."
+            )
             return "end"
 
         # Add a safeguard to detect if we're stuck in a loop
-        if hasattr(self, '_last_position') and self._last_position == current_position:
-            logger.warning(f"Position hasn't changed from {current_position}. Breaking potential loop.")
+        if hasattr(self, "_last_position") and self._last_position == current_position:
+            logger.warning(
+                f"Position hasn't changed from {current_position}. Breaking potential loop."
+            )
             return "end"
 
         self._last_position = current_position

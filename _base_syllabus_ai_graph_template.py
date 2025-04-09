@@ -3,6 +3,7 @@ syllabus_sense._base_syllabus_ai_graph_template
 ~~~~~~~~~~~~
 Contains code for the main syllabus sense program without async support
 """
+
 import logging
 from abc import abstractmethod
 from typing import Any, Callable, Dict, List, Optional
@@ -117,28 +118,33 @@ class BaseSyllabusSenseGraphTemplate:
             logger.info("Graph not initialized, creating now")
             self._create_ai_graph_structure()
 
-        # Process the specified number of topics
         processed_count = 0
         while processed_count < topics_num:
             try:
-                # Get the next document from the parser
-                logger.info(f"Processing document {processed_count + 1} of {topics_num}")
+                logger.info(
+                    f"Processing document {processed_count + 1} of {topics_num}"
+                )
                 next_document = next(self._document_parser)
                 logger.info(
-                    f"Retrieved document with title: {next_document.title if hasattr(next_document, 'title') else 'Unknown'}")
+                    f"Retrieved document with title: {next_document.title if hasattr(next_document, 'title') else 'Unknown'}"
+                )
 
                 initial_state = State(topic=next_document.to_dict())
-                logger.info(f"Created initial state with topic: {initial_state.topic.get('title', 'Unknown')}")
+                logger.info(
+                    f"Created initial state with topic: {initial_state.topic.get('title', 'Unknown')}"
+                )
 
-                # Use synchronous invoke
                 logger.info("Invoking graph for processing")
                 self._graph.invoke(initial_state, {"recursion_limit": 50})
 
                 processed_count += 1
-                logger.info(f"Completed processing document {processed_count} of {topics_num}")
+                logger.info(
+                    f"Completed processing document {processed_count} of {topics_num}"
+                )
             except StopIteration:
-                # No more documents to process
-                logger.warning(f"No more documents available after processing {processed_count} documents")
+                logger.warning(
+                    f"No more documents available after processing {processed_count} documents"
+                )
                 break
             except Exception as e:
                 logger.error(f"Error processing document: {str(e)}", exc_info=True)
