@@ -166,13 +166,17 @@ subtopic_extraction → question_planning → batch_selection → batch_question
 
 ### Files Structure
 
-- `main.py`: Entry point for the application
-- `syllabus_ai_graph.py`: Implementation of the AI workflow
-- `_base_syllabus_ai_graph_template.py`: Template class defining the graph structure
-- `data_types.py`: Pydantic models for data structures
-- `document_parser/`: Package for parsing syllabus documents
-  - `syllabus_parser.py`: Contains logic for processing Word documents
-  - `data_types.py`: Data models for parsed syllabus content
+-   `main.py`: Entry point for the application
+-   `syllabus_ai_graph.py`: Implementation of the AI workflow
+-   `_base_syllabus_ai_graph_template.py`: Template class defining the graph structure
+-   `data_types.py`: Pydantic models for data structures
+-   `document_parser/`: Package for parsing syllabus documents
+    -   `syllabus_parser.py`: Contains logic for processing Word documents
+    -   `data_types.py`: Data models for parsed syllabus content
+-   `output_manager/`: Package for handling the persistence of generated questions
+    -   `base_output_manager.py`: Abstract base class defining the output manager interface
+    -   `file_output_manager.py`: Implementation for storing questions in JSON files
+-   `exceptions.py`: Custom exception hierarchy for robust error handling
 
 ## Prerequisites
 
@@ -216,21 +220,32 @@ This will:
 1. Process the default syllabus document (`chemistry_form_1_2.docx`)
 2. Extract topics and subtopics
 3. Generate questions for each topic
-4. Save the questions to `generated_questions.json`
+4. Save the questions to `{topic_name}.json`
 
 ### Custom Usage
 
-You can modify `main.py` to specify different source documents or adjust processing parameters.
+You can modify `main.py` to specify different source documents, output managers, or adjust processing parameters.
 
 Example customization:
 
 ```python
 if __name__ == "__main__":
     path = Path.cwd() / "my_syllabus.docx"
-    parser = NormalSyllabusParser.from_file(
-        file_path=path)
-    workflow = SyllabusAIGraph(document_parser=parser, subject="biology")
+    parser = NormalSyllabusParser.from_file(file_path=path)
+    
+    # Create an output manager with a custom directory
+    output_path = Path.cwd() / "output" / "questions"
+    output_manager = FileOutputManager(directory=output_path)
+    
+    # Inject the output manager into the workflow
+    workflow = SyllabusAIGraph(
+        document_parser=parser, 
+        subject="biology",
+        output_manager=output_manager
+    )
+    
     workflow.process(topics_num=3)  # Process just the first 3 topics
+
 ```
 
 ## Output
