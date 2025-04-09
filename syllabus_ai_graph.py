@@ -164,23 +164,25 @@ class SyllabusAIGraph(BaseSyllabusSenseGraphTemplate):
         """Select the next batch of questions to generate from the plan."""
         if not state.question_plan or not state.question_plan.planned_questions:
             logger.warning("No question plan available for batch selection")
-            return {"current_batch": []}
+            return {"current_batch": [], "plan_position": 0}
 
-        # Get the starting position for this batch
         start_pos = state.plan_position
 
         # Check if we've reached the end of the plan
         if start_pos >= len(state.question_plan.planned_questions):
             logger.info("Reached the end of the question plan")
-            return {"current_batch": []}
+            return {"current_batch": [], "plan_position": len(state.question_plan.planned_questions)}
 
         # Determine the end position for this batch
-        end_pos = min(
-            start_pos + state.batch_size, len(state.question_plan.planned_questions)
-        )
+        end_pos = min(start_pos + state.batch_size, len(state.question_plan.planned_questions))
 
         # Get the current batch of questions
         current_batch = state.question_plan.planned_questions[start_pos:end_pos]
+
+        # Log information about the partial batch
+        questions_remaining = len(state.question_plan.planned_questions) - start_pos
+        if questions_remaining < state.batch_size:
+            logger.info(f"PARTIAL BATCH: Processing final {questions_remaining} questions")
 
         # Update their status
         for question in current_batch:
@@ -326,8 +328,7 @@ class SyllabusAIGraph(BaseSyllabusSenseGraphTemplate):
             else:
                 existing_questions = []
 
-            # Append our new questions
-            # Convert Pydantic models to dict for JSON serialization
+
             new_questions_dict = [q.model_dump() for q in state.current_questions]
             all_saved_questions = existing_questions + new_questions_dict
 
@@ -358,13 +359,25 @@ class SyllabusAIGraph(BaseSyllabusSenseGraphTemplate):
             logger.warning("No question plan available for decision")
             return "end"
 
-        # Check if we've processed all questions in the plan
-        if state.plan_position >= len(state.question_plan.planned_questions):
-            logger.info("All planned questions have been generated. Workflow complete.")
+        current_position = state.plan_position
+        total_questions = len(state.question_plan.planned_questions)
+
+        logger.info(f"Decision point: position {current_position} of {total_questions} total questions")
+
+        # Check if we've processed all questions (including partial final batch)
+        if current_position >= total_questions:
+            logger.info(f"All {total_questions} planned questions have been generated. Workflow complete.")
             return "end"
-        else:
-            # Continue with the next batch
-            logger.info(
-                f"Proceeding to next batch. {state.plan_position}/{len(state.question_plan.planned_questions)} questions processed."
-            )
-            return "next_batch"
+
+        # Add a safeguard to detect if we're stuck in a loop
+        if hasattr(self, '_last_position') and self._last_position == current_position:
+            logger.warning(f"Position hasn't changed from {current_position}. Breaking potential loop.")
+            return "end"
+
+        self._last_position = current_position
+
+        questions_remaining = total_questions - current_position
+        logger.info(
+            f"Proceeding to next batch. {current_position}/{total_questions} questions processed. {questions_remaining} questions remaining."
+        )
+        return "next_batch"
