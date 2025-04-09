@@ -1,6 +1,36 @@
-# Syllabus Sense - AI Question Generator
+# Syllabus Sense AI Question Generator
 
 An AI-powered tool that analyzes educational syllabi and automatically generates multiple-choice questions for assessment.
+
+This component was extracted from [VirtueEducate](https://github.com/PempheroKamundi#virtueducate), a project focused on creating content-relevant educational questions. Syllabus Sense showcases the course content extraction and question generation capabilities of the main project.
+
+## About VirtuEducate
+
+VirtuEducate is an AI-powered educational platform tackling Malawi's low exam pass rates through personalized learning.
+
+**Key Features**:
+- **10,000+ exam-style questions** for JCE & MSCE students
+- **AI-driven study paths** based on past paper patterns
+- **Real-time progress tracking** and performance insights
+- **Instant feedback** with detailed explanations
+- **Focus on college readiness & admissions**
+
+The Syllabus Sense component helps power VirtuEducate's extensive question bank by automatically generating high-quality assessment questions aligned with the Malawian curriculum.
+
+## Overview
+
+Syllabus Sense is designed to help educators create high-quality assessment questions directly from curriculum documents. The system:
+
+1. Parses Microsoft Word format syllabus documents
+2. Extracts key topics and subtopics
+3. Identifies learning objectives and key concepts
+4. Generates a plan for comprehensive question coverage
+5. Creates batches of multiple-choice questions with explanations
+
+The application specifically targets Malawian educational syllabi but can be adapted to other educational contexts.
+
+In the original VirtueEducate project, this system is enhanced by using Retrieval-Augmented Generation (RAG) to incorporate relevant content from subject textbooks, further improving the quality and accuracy of generated questions.
+
 
 ## Built for Speed and Scalability
 
@@ -117,34 +147,6 @@ if hasattr(self, '_last_position') and self._last_position == current_position:
 self._last_position = current_position
 ```
 
-This component was extracted from [VirtueEducate](https://github.com/PempheroKamundi#virtueducate), a project focused on creating content-relevant educational questions. Syllabus Sense showcases the course content extraction and question generation capabilities of the main project.
-
-## About VirtuEducate
-
-VirtuEducate is an AI-powered educational platform tackling Malawi's low exam pass rates through personalized learning.
-
-**Key Features**:
-- **10,000+ exam-style questions** for JCE & MSCE students
-- **AI-driven study paths** based on past paper patterns
-- **Real-time progress tracking** and performance insights
-- **Instant feedback** with detailed explanations
-- **Focus on college readiness & admissions**
-
-The Syllabus Sense component helps power VirtuEducate's extensive question bank by automatically generating high-quality assessment questions aligned with the Malawian curriculum.
-
-## Overview
-
-Syllabus Sense is designed to help educators create high-quality assessment questions directly from curriculum documents. The system:
-
-1. Parses Microsoft Word format syllabus documents
-2. Extracts key topics and subtopics
-3. Identifies learning objectives and key concepts
-4. Generates a plan for comprehensive question coverage
-5. Creates batches of multiple-choice questions with explanations
-
-The application specifically targets Malawian educational syllabi but can be adapted to other educational contexts.
-
-In the original VirtueEducate project, this system is enhanced by using Retrieval-Augmented Generation (RAG) to incorporate relevant content from subject textbooks, further improving the quality and accuracy of generated questions.
 
 ## Architecture
 
