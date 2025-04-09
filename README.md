@@ -1,4 +1,4 @@
-# Syllabus Sense AI Question Generator
+# Syllabus Sense - AI Question Generator
 
 An AI-powered tool that analyzes educational syllabi and automatically generates multiple-choice questions for assessment.
 
