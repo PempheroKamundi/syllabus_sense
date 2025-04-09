@@ -1,5 +1,24 @@
 # Changelog
 
+## v0.0.2 - 2025-04-09
+
+### Added
+
+- Introduced BaseOutputManager interface for dependency injection pattern
+- FileOutputManager concrete implementation for persistent storage of generated questions
+- Separation of concerns through abstraction of output handling from core processing logic
+- Directory validation and auto-creation capability for output paths
+- Custom exception hierarchy with SyllabusSenseException as base class
+- Specific exception types for different error scenarios (InvalidOutputDirectoryError, etc.)
+- Robust error handling for file operations
+
+### Changed
+
+- Refactored syllabus processing workflow to support injectable output managers
+- Decoupled data persistence from question generation logic
+- Improved question saving mechanism with proper error handling
+- Enhanced logging with more detailed information about saved questions
+
 ## v0.0.1 - 2025-04-09
 
 ### Added
