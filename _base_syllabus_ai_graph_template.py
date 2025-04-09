@@ -132,8 +132,7 @@ class BaseSyllabusSenseGraphTemplate:
 
                 # Use synchronous invoke
                 logger.info("Invoking graph for processing")
-                final_state = self._graph.invoke(initial_state)
-                logger.info(f"Processing complete. Generated {len(final_state.questions)} questions")
+                self._graph.invoke(initial_state)
 
                 processed_count += 1
                 logger.info(f"Completed processing document {processed_count} of {topics_num}")
