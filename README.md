@@ -226,9 +226,7 @@ Example customization:
 if __name__ == "__main__":
     path = Path.cwd() / "my_syllabus.docx"
     parser = NormalSyllabusParser.from_file(
-        file_path=path, 
-        topic_identifier="Unit"  # Use if your document uses different topic markers
-    )
+        file_path=path)
     workflow = SyllabusAIGraph(document_parser=parser, subject="biology")
     workflow.process(topics_num=3)  # Process just the first 3 topics
 ```
