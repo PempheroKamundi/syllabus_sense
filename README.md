@@ -118,22 +118,13 @@ except (ValidationError, json.JSONDecodeError, OutputParserException) as e:
 #### File Handling with Graceful Error Recovery
 
 ```python
-try:
-    # Check if the file exists and read existing content
-    if output_file.exists():
-        with open(output_file, "r") as f:
-            try:
-                existing_questions = json.load(f)
-            except json.JSONDecodeError:
-                # File exists but is not valid JSON
-                existing_questions = []
-    else:
-        existing_questions = []
-
-    # Continue with saving...
-
-except Exception as e:
-    logger.error(f"Error saving questions: {e}")
+   try:
+     with open(output_file, "r") as f:
+         existing_questions = json.load(f)
+     except FileNotFoundError:
+         existing_questions = []
+     except json.JSONDecodeError:
+         existing_questions = []
 ```
 
 #### Loop Protection and Safeguards
@@ -160,9 +151,11 @@ subtopic_extraction → question_planning → batch_selection → batch_question
 
 ### Key Components
 
-- **Document Parser**: Extracts structured content from Word documents
-- **Syllabus AI Graph**: Coordinates the workflow of nodes via LangGraph
-- **LLM Integration**: Uses OpenAI's GPT-4o models to generate intelligent content
+-   **Document Parser**: Extracts structured content from Word documents
+-   **Syllabus AI Graph**: Coordinates the workflow of nodes via LangGraph
+-   **Output Manager**: Handles persisting generated questions through dependency injection
+-   **LLM Integration**: Uses OpenAI's GPT-4o models to generate intelligent content
+-   **Exception Handling**: Custom exception hierarchy for robust error management
 
 ### Files Structure
 
