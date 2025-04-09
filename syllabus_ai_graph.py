@@ -1,6 +1,5 @@
 import json
 import logging
-from pathlib import Path
 from typing import Any, Dict
 
 from dotenv import load_dotenv
@@ -11,12 +10,17 @@ from langchain_core.prompts import PromptTemplate
 from langchain_openai import ChatOpenAI
 from pydantic import ValidationError
 
-from _base_syllabus_ai_graph_template import (BaseSyllabusSenseGraphTemplate,
-                                              State)
-from data_types import (BatchSelectionNodeResponse, PlanningNodeResponse,
-                        QuestionPlan, QuestionsResponse,
-                        SubtopicExtractionNodeResponse, SubtopicsResponse)
+from _base_syllabus_ai_graph_template import BaseSyllabusSenseGraphTemplate, State
+from data_types import (
+    BatchSelectionNodeResponse,
+    PlanningNodeResponse,
+    QuestionPlan,
+    QuestionsResponse,
+    SubtopicExtractionNodeResponse,
+    SubtopicsResponse,
+)
 from document_parser.syllabus_parser import BaseSyllabusParser
+from output_manager.base_output_manager import BaseOutputManager
 
 logger = logging.getLogger(__name__)
 
@@ -32,9 +36,11 @@ class SyllabusAIGraph(BaseSyllabusSenseGraphTemplate):
         self,
         document_parser: BaseSyllabusParser,
         subject: str,
+        save_manager: BaseOutputManager,
     ):
         super().__init__(document_parser=document_parser)
         self._subject = subject
+        self._save_manager = save_manager
 
     def subtopic_extraction_node(self, state: State) -> SubtopicExtractionNodeResponse:
         """Extract subtopics and learning objectives from the topic."""
@@ -52,7 +58,7 @@ class SyllabusAIGraph(BaseSyllabusSenseGraphTemplate):
         {format_instructions}
 
         Analyze this content and identify distinct subtopics as specified in the format above.
-        For the topic title, get it from theme/topic table, dont use the supplied one
+        Make sure to include the topic of the extracted subtopic.
         """
 
         prompt = PromptTemplate(
@@ -270,37 +276,9 @@ class SyllabusAIGraph(BaseSyllabusSenseGraphTemplate):
         if not state.current_questions:
             return {"questions": state.questions}
 
+        self._save_manager.save_output(state)
+
         all_questions = state.questions + state.current_questions
-
-        output_file = Path.cwd() / "generated_questions.json"
-
-        try:
-            if output_file.exists():
-                with open(output_file, "r") as f:
-                    try:
-                        existing_questions = json.load(f)
-                    except json.JSONDecodeError:
-                        existing_questions = []
-            else:
-                existing_questions = []
-
-            new_questions_dict = [q.model_dump() for q in state.current_questions]
-            all_saved_questions = existing_questions + new_questions_dict
-
-            with open(output_file, "w") as f:
-                json.dump(all_saved_questions, f, indent=2)
-
-            subtopic_name = (
-                state.current_questions[0].topic
-                if state.current_questions
-                else "Unknown Subtopic"
-            )
-            logger.info(
-                f"Saved {len(state.current_questions)} questions for subtopic: '{subtopic_name}'"
-            )
-
-        except Exception as e:
-            logger.error(f"Error saving questions: {e}")
 
         return {"questions": all_questions}
 

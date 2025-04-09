@@ -11,9 +11,15 @@ from typing import Any, Callable, Dict, List, Optional
 from langgraph.graph import END, StateGraph
 from pydantic import BaseModel, Field
 
-from data_types import (BatchSelectionNodeResponse, PlannedQuestion,
-                        PlanningNodeResponse, Question, QuestionPlan, Subtopic,
-                        SubtopicExtractionNodeResponse)
+from data_types import (
+    BatchSelectionNodeResponse,
+    PlannedQuestion,
+    PlanningNodeResponse,
+    Question,
+    QuestionPlan,
+    Subtopic,
+    SubtopicExtractionNodeResponse,
+)
 from document_parser.syllabus_parser import BaseSyllabusParser
 
 logger = logging.getLogger(__name__)
@@ -131,7 +137,7 @@ class BaseSyllabusSenseGraphTemplate:
 
                 initial_state = State(topic=next_document.to_dict())
                 logger.info(
-                    f"Created initial state with topic: {initial_state.topic.get('title', 'Unknown')}"
+                    f"Created initial state with core element: {initial_state.topic.get('title', 'Unknown')}"
                 )
 
                 logger.info("Invoking graph for processing")
