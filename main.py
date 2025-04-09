@@ -2,6 +2,7 @@ import logging
 from pathlib import Path
 
 from document_parser.syllabus_parser import NormalSyllabusParser
+from output_manager.file_output_manager import FileOutputManager
 from syllabus_ai_graph import SyllabusAIGraph
 
 logging.basicConfig(
@@ -11,7 +12,11 @@ logging.basicConfig(
 )
 
 if __name__ == "__main__":
-    path = Path.cwd() / "chemistry_form_1_2.docx"
-    parser = NormalSyllabusParser.from_file(file_path=path)
-    workflow = SyllabusAIGraph(document_parser=parser, subject="chemistry")
+    doc_path = Path.cwd() / "chemistry_form_1_2.docx"
+    save_directory = Path.cwd()
+    parser = NormalSyllabusParser.from_file(file_path=doc_path)
+    file_manager = FileOutputManager(directory=save_directory)
+    workflow = SyllabusAIGraph(
+        document_parser=parser, subject="chemistry", save_manager=file_manager
+    )
     workflow.process()

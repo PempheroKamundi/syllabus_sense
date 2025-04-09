@@ -42,7 +42,7 @@ class Question(BaseModel):
     question_id: str
     text: str
     topic: str
-    category: str
+    sub_topic: str
     academic_class: str
     examination_level: str
     difficulty: str

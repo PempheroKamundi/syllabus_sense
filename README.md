@@ -243,7 +243,7 @@ The generated questions are saved to `generated_questions.json` in the following
     "question_id": "Q001",
     "text": "What is the physical state of matter that has a definite shape and volume?",
     "topic": "States of Matter",
-    "category": "Basic Knowledge",
+    "sub_topic": "Basic Knowledge",
     "academic_class": "Form 1",
     "examination_level": "Secondary School",
     "difficulty": "Easy",
