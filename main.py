@@ -9,5 +9,3 @@ if __name__ == "__main__":
     parser = NormalSyllabusParser.from_file(file_path=path)
     workflow = SyllabusAIGraph(document_parser=parser, subject="chemistry")
     workflow.process()
-
-

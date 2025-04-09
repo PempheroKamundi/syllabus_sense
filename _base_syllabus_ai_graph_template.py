@@ -4,19 +4,16 @@ syllabus_sense._base_syllabus_ai_graph_template
 Contains code for the main syllabus sense program without async support
 """
 
-
-
 from abc import abstractmethod
-from typing import Any, Callable, Dict, List, Optional, Generator
+from typing import Any, Callable, Dict, Generator, List, Optional
 
 from langgraph.graph import END, StateGraph
 from pydantic import BaseModel, Field
 
-from document_parser.syllabus_parser import BaseSyllabusParser
-
 from data_types import (BatchSelectionNodeResponse, PlannedQuestion,
-                        PlanningNodeResponse, Question, QuestionPlan,
-                        Subtopic, SubtopicExtractionNodeResponse)
+                        PlanningNodeResponse, Question, QuestionPlan, Subtopic,
+                        SubtopicExtractionNodeResponse)
+from document_parser.syllabus_parser import BaseSyllabusParser
 
 
 class State(BaseModel):
@@ -56,9 +53,7 @@ class BaseSyllabusSenseGraphTemplate:
     methods that need to be implemented by concrete subclasses.
     """
 
-    def __init__(
-            self, document_parser: BaseSyllabusParser
-    ) -> None:
+    def __init__(self, document_parser: BaseSyllabusParser) -> None:
         """
         Initialize the BaseSyllabusSenseGraphTemplate.
 
@@ -78,7 +73,9 @@ class BaseSyllabusSenseGraphTemplate:
         workflow.add_node("subtopic_extraction", self.subtopic_extraction_node)
         workflow.add_node("question_planning", self.question_planning_node)
         workflow.add_node("batch_selection", self.batch_selection_node)
-        workflow.add_node("batch_question_generation", self.batch_question_generation_node)
+        workflow.add_node(
+            "batch_question_generation", self.batch_question_generation_node
+        )
         workflow.add_node("question_saving", self.question_saving_node)
 
         # Set the entry point and connect the nodes
@@ -124,7 +121,6 @@ class BaseSyllabusSenseGraphTemplate:
 
                 # Use synchronous invoke
                 self._graph.invoke(initial_state)
-
 
                 processed_count += 1
             except StopIteration:

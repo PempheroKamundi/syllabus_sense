@@ -11,13 +11,12 @@ from langchain_core.prompts import PromptTemplate
 from langchain_openai import ChatOpenAI
 from pydantic import ValidationError
 
+from _base_syllabus_ai_graph_template import (BaseSyllabusSenseGraphTemplate,
+                                              State)
 from data_types import (BatchSelectionNodeResponse, PlanningNodeResponse,
                         QuestionPlan, QuestionsResponse,
                         SubtopicExtractionNodeResponse, SubtopicsResponse)
 from document_parser.syllabus_parser import BaseSyllabusParser
-
-from _base_syllabus_ai_graph_template import (BaseSyllabusSenseGraphTemplate,
-                                               State)
 
 # Configure logging
 logging.basicConfig(
@@ -41,11 +40,8 @@ class SyllabusAIGraph(BaseSyllabusSenseGraphTemplate):
         document_parser: BaseSyllabusParser,
         subject: str,
     ):
-        super().__init__(
-            document_parser=document_parser
-        )
+        super().__init__(document_parser=document_parser)
         self._subject = subject
-
 
     # Node for parsing the topic and extracting subtopics
     def subtopic_extraction_node(self, state: State) -> SubtopicExtractionNodeResponse:
@@ -311,7 +307,7 @@ class SyllabusAIGraph(BaseSyllabusSenseGraphTemplate):
             return {"current_questions": []}
 
     # Node for saving questions
-    def question_saving_node(self,state: State) -> Dict[str, Any]:
+    def question_saving_node(self, state: State) -> Dict[str, Any]:
         """Save the generated questions and prepare for the next batch."""
         # If we have no questions, just return the current state
         if not state.current_questions:
