@@ -3,9 +3,9 @@ syllabus_sense._base_syllabus_ai_graph_template
 ~~~~~~~~~~~~
 Contains code for the main syllabus sense program without async support
 """
-
+import logging
 from abc import abstractmethod
-from typing import Any, Callable, Dict, Generator, List, Optional
+from typing import Any, Callable, Dict, List, Optional
 
 from langgraph.graph import END, StateGraph
 from pydantic import BaseModel, Field
@@ -14,6 +14,8 @@ from data_types import (BatchSelectionNodeResponse, PlannedQuestion,
                         PlanningNodeResponse, Question, QuestionPlan, Subtopic,
                         SubtopicExtractionNodeResponse)
 from document_parser.syllabus_parser import BaseSyllabusParser
+
+logger = logging.getLogger(__name__)
 
 
 class State(BaseModel):
@@ -62,14 +64,17 @@ class BaseSyllabusSenseGraphTemplate:
         """
         self._document_parser: BaseSyllabusParser = document_parser
         self._graph: Optional[Callable] = None
+        logger.info("Initialized BaseSyllabusSenseGraphTemplate")
 
     def _create_ai_graph_structure(self) -> None:
         """
         Creates the AI graph structure for synchronous execution.
         """
+        logger.info("Creating AI graph structure")
         workflow: StateGraph = StateGraph(State)
 
         # Add all nodes
+        logger.info("Adding nodes to the workflow")
         workflow.add_node("subtopic_extraction", self.subtopic_extraction_node)
         workflow.add_node("question_planning", self.question_planning_node)
         workflow.add_node("batch_selection", self.batch_selection_node)
@@ -79,6 +84,7 @@ class BaseSyllabusSenseGraphTemplate:
         workflow.add_node("question_saving", self.question_saving_node)
 
         # Set the entry point and connect the nodes
+        logger.info("Setting entry point and connecting nodes")
         workflow.set_entry_point("subtopic_extraction")
         workflow.add_edge("subtopic_extraction", "question_planning")
         workflow.add_edge("question_planning", "batch_selection")
@@ -86,6 +92,7 @@ class BaseSyllabusSenseGraphTemplate:
         workflow.add_edge("batch_question_generation", "question_saving")
 
         # Add conditional edges for batch processing
+        logger.info("Adding conditional edges for batch processing")
         workflow.add_conditional_edges(
             "question_saving",
             self.batch_decision_node,
@@ -93,22 +100,21 @@ class BaseSyllabusSenseGraphTemplate:
         )
 
         # Compile the graph
+        logger.info("Compiling the graph")
         self._graph = workflow.compile()
+        logger.info("AI graph structure created successfully")
 
     def process(self, topics_num: int = 1) -> None:
         """
         Process the syllabus and generate questions.
 
-        This method is a generator that yields final states with questions
-        as they are generated.
-
         Args:
             topics_num: Number of topics to process (default: 1)
-
-        Yields:
-            Final state containing generated questions
         """
+        logger.info(f"Starting processing of {topics_num} topics")
+
         if not self._graph:
+            logger.info("Graph not initialized, creating now")
             self._create_ai_graph_structure()
 
         # Process the specified number of topics
@@ -116,16 +122,30 @@ class BaseSyllabusSenseGraphTemplate:
         while processed_count < topics_num:
             try:
                 # Get the next document from the parser
+                logger.info(f"Processing document {processed_count + 1} of {topics_num}")
                 next_document = next(self._document_parser)
+                logger.info(
+                    f"Retrieved document with title: {next_document.title if hasattr(next_document, 'title') else 'Unknown'}")
+
                 initial_state = State(topic=next_document.to_dict())
+                logger.info(f"Created initial state with topic: {initial_state.topic.get('title', 'Unknown')}")
 
                 # Use synchronous invoke
-                self._graph.invoke(initial_state)
+                logger.info("Invoking graph for processing")
+                final_state = self._graph.invoke(initial_state)
+                logger.info(f"Processing complete. Generated {len(final_state.questions)} questions")
 
                 processed_count += 1
+                logger.info(f"Completed processing document {processed_count} of {topics_num}")
             except StopIteration:
                 # No more documents to process
+                logger.warning(f"No more documents available after processing {processed_count} documents")
                 break
+            except Exception as e:
+                logger.error(f"Error processing document: {str(e)}", exc_info=True)
+                raise
+
+        logger.info(f"Finished processing {processed_count} topics")
 
     @abstractmethod
     def subtopic_extraction_node(self, state: State) -> SubtopicExtractionNodeResponse:
