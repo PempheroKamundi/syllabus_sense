@@ -328,6 +328,9 @@ The following issues are currently being addressed:
 * Add rate limiting checks for API calls
 * Add multi-model support for different LLM providers
 * Add comprehensive unit tests
+* Make sure that the LLM correctly categorizes each subtopic under granular topic/theme and not core elements of the syllabus
+* Add evaluation mechanism for the LLM output
+  
 
 ## Contributing
 
